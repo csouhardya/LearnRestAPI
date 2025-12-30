@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-    <Folder Include="DataAccess\" />
-    <Folder Include="Services\" />
     <Folder Include="Products\Create\" />
-    <Folder Include="Products\GetById\" />
     <Folder Include="Products\Update\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="14.0.0" />
   </ItemGroup>
 
 </Project>

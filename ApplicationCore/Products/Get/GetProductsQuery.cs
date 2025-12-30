@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ApplicationCore.Models;
+using MediatR;
 
 namespace ApplicationCore.Products.Get
 {
-    internal class GetProductsQuery
-    {
-    }
+    public record GetProductsQuery : IRequest<List<Product>>;
+    public record GetProductsQueryBySearchTerm(string searchTerm): IRequest<List<Product>>;
 }
