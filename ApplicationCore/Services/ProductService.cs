@@ -20,9 +20,9 @@ namespace ApplicationCore.Services
             return products;
         }
 
-        public async Task<List<Product>> GetProductsAsync(string searchTerm)
+        public async Task<List<Product>> GetProductsAsync(string? searchTerm, string? sortBy, string? sortOrder)
         {
-            var query = new GetProductsQueryBySearchTerm(searchTerm);
+            var query = new GetProductsQueryBySearchTerm(searchTerm, sortBy, sortOrder);
             var products = await _sender.Send(query);
             return products;
         }

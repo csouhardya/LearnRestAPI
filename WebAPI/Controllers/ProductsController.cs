@@ -24,9 +24,9 @@ namespace WebAPI.Controllers
 
         [HttpGet]
         [Route("SearchTerm")]
-        public async Task<IActionResult> GetProductsWithSearchTerm(string searchTerm)
+        public async Task<IActionResult> GetProductsWithSearchTerm(string? searchTerm, string? sortBy, string? sortOrder)
         {
-            var products = await _productsService.GetProductsAsync(searchTerm);
+            var products = await _productsService.GetProductsAsync(searchTerm, sortBy, sortOrder);
             return Ok(products);
         }
 
