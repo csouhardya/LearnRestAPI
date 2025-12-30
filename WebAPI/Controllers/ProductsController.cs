@@ -24,9 +24,10 @@ namespace WebAPI.Controllers
 
         [HttpGet]
         [Route("SearchTerm")]
-        public async Task<IActionResult> GetProductsWithSearchTerm(string? searchTerm, string? sortBy, string? sortOrder)
+        public async Task<IActionResult> GetProductsWithSearchTerm(string? searchTerm, string? sortBy, string? sortOrder, int? page, int? pageSize)
         {
-            var products = await _productsService.GetProductsAsync(searchTerm, sortBy, sortOrder);
+            //TODO validate if page != null then pageSize is required and minimum number should be 1
+            var products = await _productsService.GetProductsAsync(searchTerm, sortBy, sortOrder, page, pageSize);
             return Ok(products);
         }
 

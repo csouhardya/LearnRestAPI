@@ -8,6 +8,6 @@ namespace ApplicationCore.Interfaces
     public interface IProductService
     {
         Task<List<Product>> GetProductsAsync();
-        Task<List<Product>> GetProductsAsync(string? searchTerm, string? sortBy, string? sortOrder);
+        Task<PageList<Product>> GetProductsAsync(string? searchTerm, string? sortBy, string? sortOrder, int? page, int? pageSize);
     }
 }

@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace ApplicationCore.Products.Get
 {
-    public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, List<Product>>, IRequestHandler<GetProductsQueryBySearchTerm, List<Product>>
+    public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, List<Product>>, IRequestHandler<GetProductsQueryBySearchTerm, PageList<Product>>
     {
         public Task<List<Product>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
         {
@@ -13,24 +13,30 @@ namespace ApplicationCore.Products.Get
             return Task.FromResult(products.Products);
         }
 
-        public Task<List<Product>> Handle(GetProductsQueryBySearchTerm request, CancellationToken cancellationToken)
+        public Task<PageList<Product>> Handle(GetProductsQueryBySearchTerm request, CancellationToken cancellationToken)
         {
-            ProductsData products = new();
-            var productsResponse = products.Products;
+            
+            ProductsData _productsData = new();
+            var products = _productsData.Products;
 
             if(!string.IsNullOrEmpty(request.searchTerm))
             {
                 bool success = decimal.TryParse(request.searchTerm, out decimal searchAmount);
-                productsResponse = [.. productsResponse.Where(_ => string.Equals(_.Name.ToLower(), request.searchTerm) ||
+                products = [.. products.Where(_ => string.Equals(_.Name.ToLower(), request.searchTerm) ||
                                                                     _.Sku.ToLower() == request.searchTerm.ToLower() || 
                                                                     (success ? _.Amount == searchAmount : false)
                                                                     )];
             }
             if(!string.IsNullOrEmpty(request.sortBy))
             {
-                productsResponse = [..this.SortHelper(productsResponse.AsQueryable(), request.sortBy, request.sortOrder)];
+                products = [..this.SortHelper(products.AsQueryable(), request.sortBy, request.sortOrder)];
             }
-            return Task.FromResult(productsResponse);
+
+            int page = request.page.HasValue ? request.page.Value : 0;
+            int pageSize = request.pageSize.HasValue ? request.pageSize.Value : products.Count();
+
+            var response = PaginationHandler<Product>.Paginate(products.AsQueryable(), page, pageSize);
+            return Task.FromResult(response);
         }
 
         private IQueryable<Product> SortHelper(IQueryable<Product> products, string sortBy, string? sortOrder)
