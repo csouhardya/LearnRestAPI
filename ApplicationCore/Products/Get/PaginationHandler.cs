@@ -8,7 +8,7 @@ namespace ApplicationCore.Products.Get
         {
             int totalCount = query.Count();
             var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-            return new(items, page, pageSize, totalCount);
+            return new PageList<T>(items, page, pageSize, totalCount); // not returning as list to follow envelop structure
         }
     }
 }
