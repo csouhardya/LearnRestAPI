@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/DataAccess/" />
+  <Folder Name="/DataAccess/DDL/" />
+  <Folder Name="/DataAccess/DML/" />
   <Project Path="ApplicationCore/ApplicationCore.csproj" />
   <Project Path="WebAPI/WebAPI.csproj" />
 </Solution>

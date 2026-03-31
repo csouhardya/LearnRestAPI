@@ -12,7 +12,7 @@ builder.Services.AddSwaggerGen();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 // Register MediatR handlers (so ISender/IMediator is available)
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetProductsQueryHandler>());
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetQueryHandlers>());
 
 
 // Register your application service implementation

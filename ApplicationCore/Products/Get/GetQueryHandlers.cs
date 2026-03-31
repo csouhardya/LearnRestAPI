@@ -5,14 +5,20 @@ using System.Linq.Expressions;
 
 namespace ApplicationCore.Products.Get
 {
-    public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, List<Product>>, IRequestHandler<GetProductsQueryBySearchTerm, PageList<Product>>
+    public class GetQueryHandlers : IRequestHandler<GetProductsQuery, List<Product>>, IRequestHandler<GetProductsQueryBySearchTerm, PageList<Product>>
     {
+        /// <summary>
+        /// Handles retrieval of all products.
+        /// </summary>
         public Task<List<Product>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
         {
             ProductsData products = new();
             return Task.FromResult(products.Products);
         }
 
+        /// <summary>
+        /// Handles retrieval of products filtered, sorted and paginated based on request parameters.
+        /// </summary>
         public Task<PageList<Product>> Handle(GetProductsQueryBySearchTerm request, CancellationToken cancellationToken)
         {
             
@@ -39,6 +45,9 @@ namespace ApplicationCore.Products.Get
             return Task.FromResult(response);
         }
 
+        /// <summary>
+        /// Applies ordering to the provided queryable sequence based on the specified property and direction.
+        /// </summary>
         private IQueryable<Product> SortHelper(IQueryable<Product> products, string sortBy, string? sortOrder)
         {
             var propInfo = typeof(Product).GetProperty(sortBy, System.Reflection.BindingFlags.IgnoreCase |
