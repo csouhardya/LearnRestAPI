@@ -1,29 +1,40 @@
-﻿using ApplicationCore.DataAccess;
+﻿using ApplicationCore.Interfaces;
 using ApplicationCore.Models;
+using ApplicationCore.Products.GetById;
 using MediatR;
 using System.Linq.Expressions;
 
 namespace ApplicationCore.Products.Get
 {
-    public class GetQueryHandlers : IRequestHandler<GetProductsQuery, List<Product>>, IRequestHandler<GetProductsQueryBySearchTerm, PageList<Product>>
+    public class GetQueryHandlers : IRequestHandler<GetProductsQuery, List<Product>>, IRequestHandler<GetProductsQueryBySearchTerm, PageList<Product>>, IRequestHandler<GetProductQuery, Product>
     {
+        private IProductsRepository _productsRepo;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GetQueryHandlers"/> class.
+        /// </summary>
+        /// <param name="productsRepo">Repository used to access product data.</param>
+        public GetQueryHandlers(IProductsRepository productsRepo)
+        {
+            _productsRepo = productsRepo;
+        }
+
+
         /// <summary>
         /// Handles retrieval of all products.
         /// </summary>
-        public Task<List<Product>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
+        public async Task<List<Product>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
         {
-            ProductsData products = new();
-            return Task.FromResult(products.Products);
+            var products = await _productsRepo.GetAllAsync();
+            return products;
         }
 
         /// <summary>
         /// Handles retrieval of products filtered, sorted and paginated based on request parameters.
         /// </summary>
-        public Task<PageList<Product>> Handle(GetProductsQueryBySearchTerm request, CancellationToken cancellationToken)
+        public async Task<PageList<Product>> Handle(GetProductsQueryBySearchTerm request, CancellationToken cancellationToken)
         {
-            
-            ProductsData _productsData = new();
-            var products = _productsData.Products;
+            var products = await _productsRepo.GetAllAsync();
 
             if(!string.IsNullOrEmpty(request.searchTerm))
             {
@@ -42,7 +53,16 @@ namespace ApplicationCore.Products.Get
             int pageSize = request.pageSize.HasValue ? request.pageSize.Value : products.Count();
 
             var response = PaginationHandler<Product>.Paginate(products.AsQueryable(), page, pageSize);
-            return Task.FromResult(response);
+            return response;
+        }
+
+        /// <summary>
+        /// Handles retrieval of a single product by GUID.
+        /// </summary>
+        public async Task<Product> Handle(GetProductQuery request, CancellationToken cancellationToken)
+        {
+            var product = await _productsRepo.GetAsync(request.guid);
+            return product;
         }
 
         /// <summary>

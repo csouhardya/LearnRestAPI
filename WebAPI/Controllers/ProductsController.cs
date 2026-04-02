@@ -55,10 +55,9 @@ namespace WebAPI.Controllers
         /// <returns>HTTP 200 with the product or placeholder response.</returns>
         [HttpGet]
         [Route("Guid")]
-        public async Task<IActionResult> GetProductById(string guid)
+        public async Task<IActionResult> GetProductById(Guid guid)
         {
-            // TODO to be implemented
-            var products = await _productsService.GetProductsAsync();
+            var products = await _productsService.GetProductByIdAsync(guid);
             return Ok(products);
         }
     }

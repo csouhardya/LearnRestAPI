@@ -1,11 +1,13 @@
+using ApplicationCore.DataAccess;
 using ApplicationCore.Interfaces;
 using ApplicationCore.Products.Get;
 using ApplicationCore.Services;
+using WebAPI.ConfigurationAccess;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -16,7 +18,9 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Ge
 
 
 // Register your application service implementation
-builder.Services.AddSingleton<IProductService, ProductService>();
+builder.Services.AddScoped<IConnectionProvider, ConnectionProvider>();
+builder.Services.AddScoped<IProductsRepository, ProductsRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 app.UseSwagger();

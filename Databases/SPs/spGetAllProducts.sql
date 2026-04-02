@@ -1,0 +1,5 @@
+CREATE OR ALTER PROCEDURE spGetAllProducts
+AS
+BEGIN
+SELECT * FROM dbo.Products
+END

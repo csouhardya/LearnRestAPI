@@ -23,5 +23,7 @@ namespace ApplicationCore.Interfaces
         /// <param name="pageSize">Optional number of items per page.</param>
         /// <returns>A task that resolves to a paged list of products.</returns>
         Task<PageList<Product>> GetProductsAsync(string? searchTerm, string? sortBy, string? sortOrder, int? page, int? pageSize);
+
+        Task<Product> GetProductByIdAsync(Guid guid);
     }
 }

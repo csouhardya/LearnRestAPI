@@ -7,6 +7,6 @@ namespace ApplicationCore.Products.GetById
     /// Request to retrieve a single product by its integer Id.
     /// </summary>
     /// <param name="id">The product identifier.</param>
-    public record GetProductQuery(int id): IRequest<Product>;
+    public record GetProductQuery(Guid guid): IRequest<Product>;
 
 }

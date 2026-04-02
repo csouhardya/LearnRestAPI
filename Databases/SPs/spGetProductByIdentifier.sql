@@ -1,0 +1,6 @@
+CREATE OR ALTER PROCEDURE spGetProductByIdentifier
+@guid UNIQUEIDENTIFIER NULL
+AS
+BEGIN
+SELECT TOP 1 * FROM dbo.products p WHERE p.guid = @guid
+END

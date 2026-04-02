@@ -1,6 +1,7 @@
 ﻿using ApplicationCore.Interfaces;
 using ApplicationCore.Models;
 using ApplicationCore.Products.Get;
+using ApplicationCore.Products.GetById;
 using MediatR;
 
 namespace ApplicationCore.Services
@@ -43,6 +44,15 @@ namespace ApplicationCore.Services
             var query = new GetProductsQueryBySearchTerm(searchTerm, sortBy, sortOrder, page, pageSize);
             var products = await _sender.Send(query);
             return products;
+        }
+
+        public async Task<Product> GetProductByIdAsync(Guid guid)
+        {
+            var query = new GetProductQuery(guid);
+            var product = await _sender.Send(query);
+            return product;
+
+
         }
     }
 }
