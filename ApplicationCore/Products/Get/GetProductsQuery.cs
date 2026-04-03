@@ -18,3 +18,4 @@ namespace ApplicationCore.Products.Get
     /// <param name="pageSize">Number of items per page.</param>
     public record GetProductsQueryBySearchTerm(string? searchTerm, string? sortBy, string? sortOrder, int? page, int? pageSize): IRequest<PageList<Product>>;
 }
+ 

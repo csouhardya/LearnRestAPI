@@ -27,9 +27,6 @@ namespace ApplicationCore.DataAccess
             await using var cmd = new SqlCommand("spGetAllProducts", conn) { CommandType = CommandType.StoredProcedure };
 
             await using var reader = await cmd.ExecuteReaderAsync();
-            // Column names come from Databases\DDL\CREATE_products.sql:
-            // id, guid, name, sku, currency, amount
-            var ordId = reader.GetOrdinal("id");
             var ordGuid = reader.GetOrdinal("guid");
             var ordName = reader.GetOrdinal("name");
             var ordSku = reader.GetOrdinal("sku");
@@ -40,7 +37,6 @@ namespace ApplicationCore.DataAccess
             {
                 var product = new Product
                 {
-                    Id = reader.GetInt32(ordId),
                     Guid = reader.GetGuid(ordGuid),
                     Name = reader.GetString(ordName),
                     Sku = reader.GetString(ordSku),
@@ -73,9 +69,45 @@ namespace ApplicationCore.DataAccess
         /// Inserts a new product using Dapper. (Implementation pending)
         /// </summary>
         /// <param name="product">Product to insert.</param>
-        public async void AddAsync(Product product)
+        public async Task<int> AddAsync(Product product)
         {
-            // TODO : to be implemented
+            await using var conn = await _connectionProvider.ConnectAsync();
+            var result = await conn.ExecuteAsync("spAddProduct", new
+            {
+                guid = product.Guid,
+                name = product.Name,
+                sku = product.Sku,
+                currency = product.Currency,
+                amount = product.Amount
+            },
+            commandType: CommandType.StoredProcedure);
+            return result;
+        }
+
+        public async Task<int> UpdateAsync(Product product)
+        {
+            await using var conn = await _connectionProvider.ConnectAsync();
+            var result = await conn.ExecuteAsync("spUpdateProduct", new
+            {
+                guid = product.Guid,
+                name = product.Name,
+                sku = product.Sku,
+                currency = product.Currency,
+                amount = product.Amount
+            },
+            commandType: CommandType.StoredProcedure);
+            return result;
+        }
+
+        public async Task<int> DeleteAsync(Guid guid)
+        {
+            await using var conn = await _connectionProvider.ConnectAsync();
+            var result = await conn.ExecuteAsync("spDeleteProduct", new
+            {
+                guid = guid
+            },
+            commandType: CommandType.StoredProcedure);
+            return result;
         }
 
     }

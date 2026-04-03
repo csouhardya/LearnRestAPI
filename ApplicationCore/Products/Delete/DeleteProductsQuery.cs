@@ -1,7 +1,6 @@
-﻿namespace ApplicationCore.Products.Delete
+﻿using MediatR;
+
+namespace ApplicationCore.Products.Delete
 {
-    public class DeleteProductsQuery
-    {
-        // TODO :  to be implemented
-    }
+    public record DeleteProductsQuery(Guid guid): IRequest<bool>;
 }

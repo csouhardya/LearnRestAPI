@@ -1,6 +1,6 @@
 ﻿# LearnRestAPI - Code Flow
 
-This repository contains a simple ASP.NET Core Web API (`WebAPI` project) and an application core library (`ApplicationCore` project). The API exposes product listing endpoints and uses MediatR to dispatch queries handled in the application core.
+This repository contains a simple ASP.NET Core Web API (`WebAPI` project) and an application core library (`ApplicationCore` project). The API exposes product listing and CRUD endpoints and uses MediatR to dispatch commands/queries handled in the application core.
 
 This README explains the request → response flow, where to find key code, and how to run the project locally.
 
@@ -11,12 +11,12 @@ This README explains the request → response flow, where to find key code, and 
 
 ## High level request flow
 
-1. Client sends HTTP request to an endpoint defined in `WebAPI/Controllers/ProductsController.cs` (example: `GET /api/products` or `GET /api/products/SearchTerm`).
+1. Client sends HTTP request to an endpoint defined in `WebAPI/Controllers/ProductsController.cs` (examples: `GET /api/products`, `GET /api/products/SearchTerm`, `POST /api/products`, `PUT /api/products`, `DELETE /api/products/{guid}`).
 2. The controller action calls the application service: `IProductService` (implemented by `ProductService`).
-3. `ProductService` uses MediatR (`ISender`) to `Send(...)` a query object (for example `GetProductsQuery`, `GetProductsQueryBySearchTerm` or `GetProductQuery`).
-4. MediatR locates and invokes the matching request handler implemented in `ApplicationCore` (see `GetQueryHandlers`).
-5. The handler uses `IProductsRepository` to access the data store. The repository currently uses ADO.NET/Dapper to query the database.
-6. The handler applies filtering, sorting and pagination and returns a result (`List<Product>` or `PageList<Product>`).
+3. `ProductService` uses MediatR (`ISender`) to `Send(...)` a query/command object (for example `GetProductsQuery`, `GetProductsQueryBySearchTerm`, `AddProductsQuery`, `UpdateQueryAsync`, or `DeleteProductsQuery`).
+4. MediatR locates and invokes the matching request handler implemented in `ApplicationCore` (see `ApplicationCore/Products/Handlers`).
+5. The handler uses `IProductsRepository` to access the data store. The repository uses ADO.NET and Dapper to query the database and perform inserts/updates/deletes.
+6. The handler applies filtering, sorting and pagination and returns a result (`List<Product>` or `PageList<Product>`), or a boolean for write operations.
 7. The `ProductService` returns the result to the controller.
 8. The controller wraps the result in an `IActionResult` (usually `Ok(...)`) and the response is sent to the client.
 
@@ -28,20 +28,23 @@ Sequence (short): Client → Controller → Service → MediatR.Send(Query) → 
 - `WebAPI/Controllers/ProductsController.cs` - exposes REST endpoints and maps request parameters to service calls.
 - `ApplicationCore/Interfaces/IProductService.cs` - service contract used by controllers.
 - `ApplicationCore/Services/ProductService.cs` - concrete implementation that translates controller calls into MediatR queries.
-- `ApplicationCore/Products/Get/GetProductsQuery.cs` - MediatR request/record definitions for product queries.
-- `ApplicationCore/Products/Get/GetQueryHandlers.cs` - MediatR handlers that orchestrate repository calls and perform filtering, sorting and pagination.
-- `ApplicationCore/Products/Get/PaginationHandler.cs` - helper that materializes paging into a `PageList<T>` envelope.
+- `ApplicationCore/Products/Create`, `Update`, `Delete`, `Get` - request record definitions for CRUD operations.
+- `ApplicationCore/Products/Handlers` - MediatR handlers that orchestrate repository calls and perform filtering, sorting and pagination.
 - `ApplicationCore/Models/Product.cs` - product model used across layers.
 - `ApplicationCore/Repositories/ProductsRepository.cs` - repository that uses ADO.NET and Dapper to read/write product data.
-- `Databases/DDL/CREATE_products.sql` - DDL showing the expected schema and column names used by the repository.
+- `Databases/DDL/CREATE_products.sql` - DDL showing the expected schema and column names used by the repository and stored procedures.
 
 ## Endpoints
 
 - `GET /api/products` - returns full product list (via `GetProductsQuery`).
 - `GET /api/products/SearchTerm?searchTerm=&sortBy=&sortOrder=&page=&pageSize=` - returns filtered/paged results (via `GetProductsQueryBySearchTerm`).
 - `GET /api/products/Guid?guid=<value>` - returns a single product by GUID (via `GetProductQuery`).
+- `POST /api/products` - creates a new product (via `AddProductsQuery`).
+- `PUT /api/products` - updates an existing product (via `UpdateQueryAsync`).
+- `DELETE /api/products/{guid}` - deletes a product by GUID (via `DeleteProductsQuery`).
 
 ## How to run
+
 0. Change the connection_String environment variable with your value
 1. From repository root run (requires .NET 10 SDK):
 

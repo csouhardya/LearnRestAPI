@@ -8,10 +8,11 @@ namespace ApplicationCore.Interfaces
     public interface IProductsRepository
     {
         /// <summary>
-        /// Inserts a product asynchronously.
+        /// Inserts a product asynchronously and returns number of rows affected.
         /// </summary>
         /// <param name="product">Product to add.</param>
-        void AddAsync(Product product);
+        /// <returns>Number of rows inserted.</returns>
+        Task<int> AddAsync(Product product);
 
         /// <summary>
         /// Retrieves all products asynchronously.
@@ -25,5 +26,19 @@ namespace ApplicationCore.Interfaces
         /// <param name="guid">Product GUID identifier.</param>
         /// <returns>The product if found; otherwise null.</returns>
         Task<Product> GetAsync(Guid guid);
+
+        /// <summary>
+        /// Updates the specified product asynchronously and returns number of rows affected.
+        /// </summary>
+        /// <param name="product">Product to update.</param>
+        /// <returns>Number of rows updated.</returns>
+        Task<int> UpdateAsync(Product product);
+
+        /// <summary>
+        /// Deletes the product with the specified GUID asynchronously and returns number of rows affected.
+        /// </summary>
+        /// <param name="guid">GUID of the product to delete.</param>
+        /// <returns>Number of rows deleted.</returns>
+        Task<int> DeleteAsync(Guid guid);
     }
 }

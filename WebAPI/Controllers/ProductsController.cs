@@ -1,6 +1,5 @@
 ﻿using ApplicationCore.Interfaces;
-using ApplicationCore.Services;
-using Microsoft.AspNetCore.Http;
+using ApplicationCore.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -57,8 +56,42 @@ namespace WebAPI.Controllers
         [Route("Guid")]
         public async Task<IActionResult> GetProductById(Guid guid)
         {
+            // TODO :  validate
             var products = await _productsService.GetProductByIdAsync(guid);
             return Ok(products);
+        }
+
+        [HttpPost]
+        [Route("")]
+        public async Task<IActionResult> AddProduct(Product product)
+        {
+            // TODO : validate
+            var isAdded = await _productsService.AddProductAsync(product);
+            if (isAdded)
+                return Created();
+            return BadRequest();
+        }
+
+        [HttpPut]
+        [Route("")]
+        public async Task<IActionResult> UpdateProduct(Product product)
+        {
+            // TODO :  validate
+            var isUpdated = await _productsService.UpdateProductAsync(product);
+            if (isUpdated)
+                return Ok();
+            return BadRequest();
+        }
+
+        [HttpDelete]
+        [Route("")]
+        public async Task<IActionResult> DeleteProduct(Guid guid)
+        {
+            //TODO : validate
+            var isDeleted = await _productsService.DeleteProductAsync(guid);
+            if (isDeleted)
+                return NoContent();
+            return BadRequest();
         }
     }
 }

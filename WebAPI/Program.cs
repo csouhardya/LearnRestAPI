@@ -1,6 +1,6 @@
 using ApplicationCore.DataAccess;
 using ApplicationCore.Interfaces;
-using ApplicationCore.Products.Get;
+using ApplicationCore.Products.Handlers;
 using ApplicationCore.Services;
 using WebAPI.ConfigurationAccess;
 

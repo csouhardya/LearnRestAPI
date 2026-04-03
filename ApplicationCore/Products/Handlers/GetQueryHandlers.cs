@@ -1,10 +1,10 @@
 ﻿using ApplicationCore.Interfaces;
 using ApplicationCore.Models;
-using ApplicationCore.Products.GetById;
+using ApplicationCore.Products.Get;
 using MediatR;
 using System.Linq.Expressions;
 
-namespace ApplicationCore.Products.Get
+namespace ApplicationCore.Products.Handlers
 {
     public class GetQueryHandlers : IRequestHandler<GetProductsQuery, List<Product>>, IRequestHandler<GetProductsQueryBySearchTerm, PageList<Product>>, IRequestHandler<GetProductQuery, Product>
     {

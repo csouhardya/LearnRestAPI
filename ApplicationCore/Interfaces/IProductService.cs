@@ -1,7 +1,4 @@
 ﻿using ApplicationCore.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ApplicationCore.Interfaces
 {
@@ -25,5 +22,11 @@ namespace ApplicationCore.Interfaces
         Task<PageList<Product>> GetProductsAsync(string? searchTerm, string? sortBy, string? sortOrder, int? page, int? pageSize);
 
         Task<Product> GetProductByIdAsync(Guid guid);
+
+        Task<bool> AddProductAsync(Product product);
+
+        Task<bool> UpdateProductAsync(Product product);
+
+        Task<bool> DeleteProductAsync(Guid guid);
     }
 }

@@ -1,8 +1,11 @@
 ﻿using ApplicationCore.Interfaces;
 using ApplicationCore.Models;
 using ApplicationCore.Products.Get;
-using ApplicationCore.Products.GetById;
+using ApplicationCore.Products.Create;
+
 using MediatR;
+using ApplicationCore.Products.Update;
+using ApplicationCore.Products.Delete;
 
 namespace ApplicationCore.Services
 {
@@ -51,8 +54,27 @@ namespace ApplicationCore.Services
             var query = new GetProductQuery(guid);
             var product = await _sender.Send(query);
             return product;
+        }
 
+        public async Task<bool> AddProductAsync(Product product)
+        {
+            var query = new AddProductsQuery(product);
+            var isAdded = await _sender.Send(query);
+            return isAdded;
+        }
 
+        public async Task<bool> UpdateProductAsync(Product product)
+        {
+            var query = new UpdateQueryAsync(product);
+            var isUpdated = await _sender.Send(query);
+            return isUpdated;
+        }
+
+        public async Task<bool> DeleteProductAsync(Guid guid)
+        {
+            var query = new DeleteProductsQuery(guid);
+            var isDeleted = await _sender.Send(query);
+            return isDeleted;
         }
     }
 }

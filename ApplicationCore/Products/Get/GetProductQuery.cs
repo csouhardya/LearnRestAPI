@@ -1,7 +1,7 @@
 ﻿using ApplicationCore.Models;
 using MediatR;
 
-namespace ApplicationCore.Products.GetById
+namespace ApplicationCore.Products.Get
 {
     /// <summary>
     /// Request to retrieve a single product by its integer Id.
