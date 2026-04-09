@@ -1,8 +1,8 @@
 ﻿using ApplicationCore.Interfaces;
-using ApplicationCore.Products.Create;
+using ApplicationCore.Queries.Products.Create;
 using MediatR;
 
-namespace ApplicationCore.Products.Handlers
+namespace ApplicationCore.Queries.Products.Handlers
 {
     /// <summary>
     /// MediatR handler that processes <see cref="AddProductsQuery"/> requests to add a product.

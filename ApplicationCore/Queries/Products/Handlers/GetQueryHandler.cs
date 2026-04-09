@@ -1,20 +1,20 @@
 ﻿using ApplicationCore.Interfaces;
 using ApplicationCore.Models;
-using ApplicationCore.Products.Get;
+using ApplicationCore.Queries.Products.Get;
 using MediatR;
 using System.Linq.Expressions;
 
-namespace ApplicationCore.Products.Handlers
+namespace ApplicationCore.Queries.Products.Handlers
 {
-    public class GetQueryHandlers : IRequestHandler<GetProductsQuery, List<Product>>, IRequestHandler<GetProductsQueryBySearchTerm, PageList<Product>>, IRequestHandler<GetProductQuery, Product>
+    public class GetQueryHandler : IRequestHandler<GetProductsQuery, List<Product>>, IRequestHandler<GetProductsQueryBySearchTerm, PageList<Product>>, IRequestHandler<GetProductQuery, Product>
     {
         private IProductsRepository _productsRepo;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GetQueryHandlers"/> class.
+        /// Initializes a new instance of the <see cref="GetQueryHandler"/> class.
         /// </summary>
         /// <param name="productsRepo">Repository used to access product data.</param>
-        public GetQueryHandlers(IProductsRepository productsRepo)
+        public GetQueryHandler(IProductsRepository productsRepo)
         {
             _productsRepo = productsRepo;
         }

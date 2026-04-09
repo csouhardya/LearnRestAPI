@@ -1,6 +1,6 @@
 ﻿using ApplicationCore.Models;
 
-namespace ApplicationCore.Products.Get
+namespace ApplicationCore.Queries.Products.Get
 {
     public class PaginationHandler<T>
     {

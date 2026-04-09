@@ -1,8 +1,8 @@
 ﻿using ApplicationCore.Interfaces;
-using ApplicationCore.Products.Delete;
+using ApplicationCore.Queries.Products.Delete;
 using MediatR;
 
-namespace ApplicationCore.Products.Handlers
+namespace ApplicationCore.Queries.Products.Handlers
 {
     /// <summary>
     /// MediatR handler that processes <see cref="DeleteProductsQuery"/> requests to delete a product.

@@ -2,6 +2,6 @@
   <Folder Name="/DataAccess/" />
   <Folder Name="/DataAccess/DDL/" />
   <Folder Name="/DataAccess/DML/" />
-  <Project Path="ApplicationCore/ApplicationCore.csproj" />
-  <Project Path="WebAPI/WebAPI.csproj" />
+  <Project Path="D:/Code/C#/LearnRestAPI/ApplicationCore/ApplicationCore.csproj" />
+  <Project Path="D:/Code/C#/LearnRestAPI/WebAPI/WebAPI.csproj" />
 </Solution>

@@ -1,11 +1,10 @@
 ﻿using ApplicationCore.Interfaces;
 using ApplicationCore.Models;
-using ApplicationCore.Products.Get;
-using ApplicationCore.Products.Create;
-
 using MediatR;
-using ApplicationCore.Products.Update;
-using ApplicationCore.Products.Delete;
+using ApplicationCore.Queries.Products.Get;
+using ApplicationCore.Queries.Products.Create;
+using ApplicationCore.Queries.Products.Update;
+using ApplicationCore.Queries.Products.Delete;
 
 namespace ApplicationCore.Services
 {

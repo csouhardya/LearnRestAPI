@@ -1,8 +1,8 @@
 ﻿using ApplicationCore.Interfaces;
-using ApplicationCore.Products.Update;
+using ApplicationCore.Queries.Products.Update;
 using MediatR;
 
-namespace ApplicationCore.Products.Handlers
+namespace ApplicationCore.Queries.Products.Handlers
 {
     /// <summary>
     /// MediatR handler that processes <see cref="UpdateQueryAsync"/> requests to update a product.
