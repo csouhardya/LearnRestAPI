@@ -16,7 +16,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Configuration.AddEnvironmentVariables();
 
-string? jwtKey = builder.Configuration.GetValue<string>("jwtKey");
+string jwtKey = builder.Configuration["Jwt:Key"] ?? throw new ApplicationException("JwtKey is missing");
+string jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new ApplicationException("JwtIssuer is missing");
+string jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new ApplicationException("JwtAudience is missing");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -30,22 +32,26 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true; // disabling because wrong user input will throw default modelstate error not custom errors.
 });
 
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//}).AddJwtBearer(options =>
-//{
-//    options.TokenValidationParameters = new TokenValidationParameters
-//    {
-//        ValidateIssuerSigningKey = true,
-//        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-//        ValidateIssuer = true,
-//        ValidateAudience = true,
-//        ValidateLifetime = true,
-//        ClockSkew = TimeSpan.Zero
-//    };
-//});
+
+// instruction to use JWT auth when app.UseAuthentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // Used when ASP.NET needs to read and validate identity, validates token, sets in httpContext.user
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; // Used when request is unauthorized
+}).AddJwtBearer(options => // how to validate JWT
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true, // Ensures token signature is valid (not tampered)
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)), // The secret key used to verify signature
+        ValidateIssuer = true, // validates who created the token
+        ValidIssuer = jwtKey, // only valid issuer, should be added in token generation in login controller
+        ValidateAudience = true, // validate the scheme for which it was intended for
+        ValidAudience = jwtAudience,// only valid audience, should be added in token generation in login controller
+        ValidateLifetime = true, // validate if token is expired
+        ClockSkew = TimeSpan.Zero // how much extra time allowed
+    };
+});
 
 
 // Register your application service implementation
@@ -60,7 +66,7 @@ builder.Services.AddScoped<JwtAuthenticationMiddleware>();
 var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseJwtAuthenticationMiddleware(); 
+//app.UseJwtAuthenticationMiddleware(); 
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -69,6 +75,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

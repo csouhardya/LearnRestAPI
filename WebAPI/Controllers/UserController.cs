@@ -1,5 +1,6 @@
 ﻿using ApplicationCore.Interfaces;
 using ApplicationCore.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -10,6 +11,7 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous] // required as httpcontext.user will be empty because of no tokens
     public class UserController(IConfiguration configuration, IUserService loginService) : ControllerBase
     {
         private readonly IConfiguration _configuration = configuration;
@@ -75,7 +77,8 @@ namespace WebAPI.Controllers
         private string CreateJwt(LoginRequest request, LoginResponse userResponse)
         {
             string jwtKey = _configuration.GetValue<string>("Jwt:Key")!; // TODO : move to jwtMW and inject it to contextWriter
-
+            string jwtAud = _configuration.GetValue<string>("Jwt:Audience")!; // TODO : move to jwtMW and inject it to contextWriter
+            string jwtIss = _configuration.GetValue<string>("Jwt:Issuer")!; // TODO : move to jwtMW and inject it to contextWriter
             var claims = new List<Claim>
             {
                 new(ClaimTypes.Name, request.Username),
@@ -90,6 +93,9 @@ namespace WebAPI.Controllers
 
             var token = new JwtSecurityToken(
                 claims: claims,
+                issuer: jwtIss,
+                audience: jwtAud,
+
                 expires: DateTime.UtcNow.AddMinutes(15),
                 signingCredentials: creds
             );

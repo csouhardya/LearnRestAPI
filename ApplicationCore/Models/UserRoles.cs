@@ -4,6 +4,6 @@
     {
         Admin = 0,
         User = 1,
-        NotRegistered = 3
+        NotRegistered = 2
     }
 }
