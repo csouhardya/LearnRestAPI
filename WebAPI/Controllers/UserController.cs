@@ -79,10 +79,12 @@ namespace WebAPI.Controllers
             string jwtKey = _configuration.GetValue<string>("Jwt:Key")!; // TODO : move to jwtMW and inject it to contextWriter
             string jwtAud = _configuration.GetValue<string>("Jwt:Audience")!; // TODO : move to jwtMW and inject it to contextWriter
             string jwtIss = _configuration.GetValue<string>("Jwt:Issuer")!; // TODO : move to jwtMW and inject it to contextWriter
+
+            // if claim types.Name is used ms will generate xml based claims e.g. "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name
             var claims = new List<Claim>
             {
-                new(ClaimTypes.Name, request.Username),
-                new(ClaimTypes.Role, userResponse.Role.ToString())
+                new("username", request.Username),
+                new("role", "User")
             };
 
             var key = new SymmetricSecurityKey(

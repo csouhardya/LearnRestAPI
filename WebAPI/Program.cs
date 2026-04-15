@@ -42,6 +42,8 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
+        NameClaimType = "username", // need to add as using custom claim instead of using default claimType.name when generating JWT
+        RoleClaimType = "role",
         ValidateIssuerSigningKey = true, // Ensures token signature is valid (not tampered)
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)), // The secret key used to verify signature
         ValidateIssuer = true, // validates who created the token
