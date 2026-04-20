@@ -19,7 +19,8 @@
       "applicationUrl": "https://localhost:7228;http://localhost:5152",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "Connection_String": "<CONNECTION_STRING>"
+        "Database_Connection_String": "<CONNECTION_STRING>",
+        "Redis_Connection_String": "<REDIS_CONNECTION_STRING>"
       }
     }
   }

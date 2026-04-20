@@ -21,7 +21,7 @@ namespace WebAPI.ConfigurationAccess
         public async Task<SqlConnection> ConnectAsync()
         {
             // Read from configuration on every call
-            var connectionString = _configuration["Connection_String"];
+            var connectionString = _configuration["Database_Connection_String"];
 
             if (string.IsNullOrWhiteSpace(connectionString))
                 throw new InvalidOperationException("Connection string 'DefaultConnection' not found in configuration.");

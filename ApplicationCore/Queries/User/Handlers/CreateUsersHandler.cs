@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ApplicationCore.Queries.User.Handlers
 {
-    public class CreateUserHandler(IUserRepository userRepository, IPasswordHelper passwordHelper): IRequestHandler<CreateUserQuery, RegisterResponse>
+    public class CreateUsersHandler(IUserRepository userRepository, IPasswordHelper passwordHelper): IRequestHandler<CreateUserQuery, RegisterResponse>
     {
         private IUserRepository _userRepository = userRepository;
         private IPasswordHelper _passwordHelper = passwordHelper;

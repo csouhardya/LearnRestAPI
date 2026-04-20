@@ -3,20 +3,23 @@ using ApplicationCore.Models;
 using ApplicationCore.Queries.Products.Get;
 using MediatR;
 using System.Linq.Expressions;
+using ApplicationCore.Misc;
 
 namespace ApplicationCore.Queries.Products.Handlers
 {
-    public class GetQueryHandler : IRequestHandler<GetProductsQuery, List<Product>>, IRequestHandler<GetProductsQueryBySearchTerm, PageList<Product>>, IRequestHandler<GetProductQuery, Product>
+    public class GetProductsHandler : IRequestHandler<GetProductsQuery, List<Product>>, IRequestHandler<GetProductsQueryBySearchTerm, PageList<Product>>, IRequestHandler<GetProductQuery, Product>
     {
         private IProductsRepository _productsRepo;
+        private readonly ICachingService _cahcingService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GetQueryHandler"/> class.
+        /// Initializes a new instance of the <see cref="GetProductsHandler"/> class.
         /// </summary>
         /// <param name="productsRepo">Repository used to access product data.</param>
-        public GetQueryHandler(IProductsRepository productsRepo)
+        public GetProductsHandler(IProductsRepository productsRepo, ICachingService cachingService)
         {
             _productsRepo = productsRepo;
+            _cahcingService = cachingService;
         }
 
 
@@ -25,7 +28,7 @@ namespace ApplicationCore.Queries.Products.Handlers
         /// </summary>
         public async Task<List<Product>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
         {
-            var products = await _productsRepo.GetAllAsync();
+            var products = await GetProductsAsync();
             return products;
         }
 
@@ -34,7 +37,7 @@ namespace ApplicationCore.Queries.Products.Handlers
         /// </summary>
         public async Task<PageList<Product>> Handle(GetProductsQueryBySearchTerm request, CancellationToken cancellationToken)
         {
-            var products = await _productsRepo.GetAllAsync();
+            List<Product> products = await GetProductsAsync();
 
             if(!string.IsNullOrEmpty(request.searchTerm))
             {
@@ -61,7 +64,7 @@ namespace ApplicationCore.Queries.Products.Handlers
         /// </summary>
         public async Task<Product> Handle(GetProductQuery request, CancellationToken cancellationToken)
         {
-            var product = await _productsRepo.GetAsync(request.guid);
+            var product = await _productsRepo.GetAsync(request.guid); // not caching as it will be admin only. User wont know guid
             return product;
         }
 
@@ -91,6 +94,17 @@ namespace ApplicationCore.Queries.Products.Handlers
                 Expression.Quote(lambda)
             );
             return products.Provider.CreateQuery<Product>(result);
+        }
+
+        private async Task<List<Product>> GetProductsAsync()
+        {
+            var data = _cahcingService.GetData<List<Product>>(Constants.AllProductCacheKey);
+            if (data is null || data?.Count == 0)
+            {
+                data = await _productsRepo.GetAllAsync();
+                _cahcingService.SetData<List<Product>>(Constants.AllProductCacheKey, data);
+            }
+            return data;
         }
     }
 }

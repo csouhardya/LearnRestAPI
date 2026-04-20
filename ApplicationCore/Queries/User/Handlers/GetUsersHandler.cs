@@ -6,7 +6,7 @@ using MediatR;
 
 namespace ApplicationCore.Queries.User.Handlers
 {
-    public class GetUserHandler(IUserRepository userRepository, IPasswordHelper passwordHelper) : IRequestHandler<GetUserQuery, LoginResponse>
+    public class GetUsersHandler(IUserRepository userRepository, IPasswordHelper passwordHelper) : IRequestHandler<GetUserQuery, LoginResponse>
     {
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IPasswordHelper _passwordHelper = passwordHelper;

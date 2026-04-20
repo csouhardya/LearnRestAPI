@@ -19,14 +19,22 @@ builder.Configuration.AddEnvironmentVariables();
 string jwtKey = builder.Configuration["Jwt:Key"] ?? throw new ApplicationException("JwtKey is missing");
 string jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new ApplicationException("JwtIssuer is missing");
 string jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new ApplicationException("JwtAudience is missing");
+string redisConn = builder.Configuration["Redis_Connection_String"] ?? throw new ApplicationException("Redis connection string is not available.");
 
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = redisConn;
+    options.InstanceName = "Products";
+
+});
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 // Register MediatR handlers (so ISender/IMediator is available)
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetQueryHandler>());
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetProductsHandler>());
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true; // disabling because wrong user input will throw default modelstate error not custom errors.
@@ -64,6 +72,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordHelper, PasswordHelper>();
 builder.Services.AddScoped<JwtAuthenticationMiddleware>();
+builder.Services.AddScoped<ICachingService, CachingService>();
 
 var app = builder.Build();
 app.UseSwagger();
