@@ -1,73 +1,361 @@
-﻿# LearnRestAPI - Code Flow
+# 🚀 LearnRestAPI
 
-This repository contains a simple ASP.NET Core Web API (`WebAPI` project) and an application core library (`ApplicationCore` project). The API exposes product listing and CRUD endpoints and uses MediatR to dispatch commands/queries handled in the application core.
+> A structured ASP.NET Core Web API demonstrating **CQRS (MediatR)**, **JWT Authentication**, and **Redis Caching (Dockerized)** with clear separation of concerns.
 
-This README explains the request → response flow, where to find key code, and how to run the project locally.
+---
 
-## Projects
+# 🧭 Quick Start Guide
 
-- `WebAPI` - ASP.NET Core Web API project. Hosts controllers, DI registration and swagger settings.
-- `ApplicationCore` - Business logic, MediatR requests/handlers, models and repository/data-access logic.
+## 🖥️ Prerequisites (Windows)
 
-## High level request flow
+* Enable **WSL / SVM (Virtualization)** from BIOS
+* Install **Docker Desktop** (or Docker Engine via WSL)
+* Start Docker
 
-1. Client sends HTTP request to an endpoint defined in `WebAPI/Controllers/ProductsController.cs` (examples: `GET /api/products`, `GET /api/products/SearchTerm`, `POST /api/products`, `PUT /api/products`, `DELETE /api/products/{guid}`).
-2. The controller action calls the application service: `IProductService` (implemented by `ProductService`).
-3. `ProductService` uses MediatR (`ISender`) to `Send(...)` a query/command object (for example `GetProductsQuery`, `GetProductsQueryBySearchTerm`, `AddProductsQuery`, `UpdateQueryAsync`, or `DeleteProductsQuery`).
-4. MediatR locates and invokes the matching request handler implemented in `ApplicationCore` (see `ApplicationCore/Products/Handlers`).
-5. The handler uses `IProductsRepository` to access the data store. The repository uses ADO.NET and Dapper to query the database and perform inserts/updates/deletes.
-6. The handler applies filtering, sorting and pagination and returns a result (`List<Product>` or `PageList<Product>`), or a boolean for write operations.
-7. The `ProductService` returns the result to the controller.
-8. The controller wraps the result in an `IActionResult` (usually `Ok(...)`) and the response is sent to the client.
+---
 
-Sequence (short): Client → Controller → Service → MediatR.Send(Query) → Handler → Repository → Database → Handler returns → Service → Controller → Client
+## ⚙️ Configuration
 
-## Key files and responsibilities
+Update the following in `appsettings.json`:
 
-- `WebAPI/Program.cs` - application startup, dependency injection, MediatR registration and Swagger configuration. Look here to see how `IProductService`, `IProductsRepository`, `IConnectionProvider` and MediatR handlers are registered.
-- `WebAPI/Controllers/ProductsController.cs` - exposes REST endpoints and maps request parameters to service calls.
-- `ApplicationCore/Interfaces/IProductService.cs` - service contract used by controllers.
-- `ApplicationCore/Services/ProductService.cs` - concrete implementation that translates controller calls into MediatR queries.
-- `ApplicationCore/Products/Create`, `Update`, `Delete`, `Get` - request record definitions for CRUD operations.
-- `ApplicationCore/Products/Handlers` - MediatR handlers that orchestrate repository calls and perform filtering, sorting and pagination.
-- `ApplicationCore/Models/Product.cs` - product model used across layers.
-- `ApplicationCore/Repositories/ProductsRepository.cs` - repository that uses ADO.NET and Dapper to read/write product data.
-- `Databases/DDL/CREATE_products.sql` - DDL showing the expected schema and column names used by the repository and stored procedures.
+```json
+ConnectionStrings:DefaultConnection
+Redis:ConnectionString
+Jwt:Key
+Jwt:Issuer
+Jwt:Audience
+```
 
-## Endpoints
+Also verify ports in:
 
-- `GET /api/products` - returns full product list (via `GetProductsQuery`).
-- `GET /api/products/SearchTerm?searchTerm=&sortBy=&sortOrder=&page=&pageSize=` - returns filtered/paged results (via `GetProductsQueryBySearchTerm`).
-- `GET /api/products/Guid?guid=<value>` - returns a single product by GUID (via `GetProductQuery`).
-- `POST /api/products` - creates a new product (via `AddProductsQuery`).
-- `PUT /api/products` - updates an existing product (via `UpdateQueryAsync`).
-- `DELETE /api/products/{guid}` - deletes a product by GUID (via `DeleteProductsQuery`).
+```
+launchSettings.json
+```
 
-## How to run
+---
 
-0. Change the connection_String environment variable with your value
-1. From repository root run (requires .NET 10 SDK):
+## 🐳 Start Redis
 
-   ```bash
-   dotnet build
-   dotnet run --project WebAPI
-   ```
+```bash
+docker-compose up
+```
 
-2. The `WebAPI` project is configured to open Swagger by default (see `WebAPI/Properties/launchSettings.json` with `launchUrl: "swagger"`), or visit:
+---
 
-   - `https://localhost:<port>/swagger`
+## 🗄️ Setup Database
 
-## Development notes
+* Run required SQL scripts
+* Ensure tables like `Users`, `Products` exist
 
-- DI and MediatR: Handlers are discovered by the `builder.Services.AddMediatR(...)` call in `Program.cs` which registers handlers from the assembly containing the handler types.
-- `ProductService` injects `ISender` (MediatR) — the service itself is registered in DI so controllers can accept `IProductService` in their constructor.
-- Repository: `IProductsRepository` is implemented by `ProductsRepository` and uses an injected `IConnectionProvider` to obtain `SqlConnection` instances. There are both ADO.NET and Dapper examples in the repository.
-- Sorting uses expression trees in `GetQueryHandlers.SortHelper` to build a `Queryable.OrderBy` call based on a property name. Pagination is handled by `PaginationHandler.Paginate` which returns a `PageList<T>`.
-- The database schema is defined in `Databases/DDL/CREATE_products.sql` — ensure the table and stored procedures exist when running the API.
+---
 
-## Troubleshooting
+## ▶️ Run Application
 
-- If you get DI errors about missing services, confirm registrations in `WebAPI/Program.cs` for `IProductService`, `IProductsRepository`, `IConnectionProvider` and MediatR handler registration.
-- If Swagger/UI fails, ensure `Swashbuckle.AspNetCore` is referenced in the `WebAPI` project.
+```bash
+dotnet build
+dotnet run
+```
 
-If you want, I can add sample SQL scripts to seed data, or wire EF Core instead of the current ADO/Dapper repository implementation.
+---
+
+## 🔐 Authentication Flow
+
+1. Register user
+2. Login
+3. Copy JWT token
+4. Use in APIs:
+
+```http
+Authorization: Bearer <token>
+```
+
+---
+
+# 🧠 Architecture Overview
+
+```
+Controller → Service → MediatR → Handler → Repository → Database
+                                      ↓
+                                   Redis Cache
+```
+
+---
+
+# 🔄 Application Flow (End-to-End)
+
+## 🟢 Application Startup
+
+* Loads configuration from `appsettings.json`
+* Registers:
+
+  * Controllers
+  * Services
+  * MediatR
+  * Repositories
+  * Redis
+  * JWT Authentication
+
+### Middleware Pipeline
+
+```
+UseRouting → UseAuthentication → UseAuthorization → MapControllers
+```
+
+---
+
+# 🔐 JWT Authentication Deep Dive
+
+## ⚙️ Setup (Program.cs)
+
+* Uses:
+
+  * Secret Key
+  * Issuer
+  * Audience
+
+* Validates:
+
+  * Token signature
+  * Expiry
+  * Issuer & Audience
+
+---
+
+## 🧾 Token Generation (UserController)
+
+### Flow
+
+```
+Request → Validate User → Create Claims → Generate Token → Return Token
+```
+
+### Claims Include
+
+* Username
+* Role
+
+---
+
+## 🔄 Authenticated Request Flow
+
+```
+Request → UseAuthentication → Token Validation → Claims Attached → UseAuthorization → Controller
+```
+
+---
+
+# 📦 Product Module
+
+---
+
+## 🎯 Controller Layer
+
+Handles endpoints:
+
+* `GET /products`
+* `POST /products`
+* `PUT /products`
+* `DELETE /products`
+
+```
+Controller → ProductService
+```
+
+---
+
+## 🔧 Service Layer
+
+Acts as abstraction over MediatR:
+
+```
+_sender.Send(...)
+```
+
+| Operation | Request              |
+| --------- | -------------------- |
+| Get       | GetProductsQuery     |
+| Add       | AddProductCommand    |
+| Update    | UpdateProductCommand |
+| Delete    | DeleteProductCommand |
+
+---
+
+## 🧠 MediatR Layer
+
+Routes requests to handlers:
+
+```
+Query/Command → Handler
+```
+
+---
+
+# 🧩 Handlers (Core Logic)
+
+---
+
+## 🟢 GetProductsHandler
+
+```
+1. Check Redis (key: "all_products")
+2. If hit → return data
+3. If miss:
+   → Fetch from DB
+   → Store in Redis
+   → Return
+```
+
+---
+
+## 🟡 AddProductHandler
+
+```
+1. Receive DTO
+2. Map to entity
+3. Save via repository
+4. Return result
+```
+
+---
+
+## 🟠 UpdateProductHandler
+
+```
+1. Fetch product
+2. Update fields
+3. Save changes
+4. Return updated entity
+```
+
+---
+
+## 🔴 DeleteProductHandler
+
+```
+1. Find product
+2. Delete from repository
+3. Persist
+4. Return status
+```
+
+---
+
+# ⚠️ Caching Behavior
+
+| Operation | Cache Usage     |
+| --------- | --------------- |
+| GET       | Uses Redis      |
+| ADD       | No cache update |
+| UPDATE    | No cache update |
+| DELETE    | No cache update |
+
+### Cache Key
+
+```
+all_products
+```
+
+---
+
+# 🧱 Repository Layer
+
+### Interface
+
+```
+IProductsRepository
+```
+
+### Responsibilities
+
+* Fetch data
+* Insert
+* Update
+* Delete
+
+> No business logic here
+
+---
+
+# 🧠 Caching Layer
+
+### Interface
+
+```
+ICachingService
+```
+
+### Implementation
+
+```
+RedisCachingService
+```
+
+### Responsibilities
+
+* Serialize data
+* Store in Redis
+* Retrieve data
+* Abstract Redis logic
+
+---
+
+# 🐳 Redis Setup
+
+* Defined in `docker-compose.yml`
+* Runs as separate container
+* Connected via configuration
+
+---
+
+# 🔗 Full System Flow
+
+```
+Client Request
+      ↓
+Controller
+      ↓
+Service
+      ↓
+MediatR
+      ↓
+Handler
+      ↓
+ ┌───────────────┐
+ │ Redis Cache   │ (GET only)
+ └──────┬────────┘
+        ↓ (miss)
+   Repository
+        ↓
+   Database
+        ↓
+   Cache Store
+        ↓
+Response → Client
+```
+
+---
+
+# 🧩 Design Summary
+
+* Controllers → thin
+* Services → MediatR abstraction
+* Handlers → business logic
+* Repositories → data access
+* Cache → read optimization
+* JWT → centralized auth
+
+---
+
+# 📌 Final Mental Model
+
+```
+Auth Flow:
+Login → Generate JWT → Use Token → Access APIs
+
+Data Flow:
+Controller → Service → MediatR → Handler → Repo → DB → Cache → Response
+```
+
+---
+
+> This README is designed to give a **complete mental model** of how the application works — from setup to execution to internal flow.
