@@ -17,9 +17,9 @@ namespace WebAPI.Controllers
         private readonly IConfiguration _configuration = configuration;
         private readonly IUserService _loginService = loginService;
 
-        [HttpGet]
+        [HttpPost]
         [Route("Login")]
-        public async Task<IActionResult> LoginAsync([FromQuery] LoginRequest request)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginRequest request)
         {
             if (string.IsNullOrEmpty(request.Username))
             {

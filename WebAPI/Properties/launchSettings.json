@@ -20,7 +20,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "Database_Connection_String": "<CONNECTION_STRING>",
-        "Redis_Connection_String": "<REDIS_CONNECTION_STRING>"
+        "Redis_Connection_String": "<REDIS_CONNECTION_STRING>",
+        "Angular_Port": "<ANGULAR_URI_INCLUDING_HTTP>"
       }
     }
   }

@@ -20,6 +20,7 @@ string jwtKey = builder.Configuration["Jwt:Key"] ?? throw new ApplicationExcepti
 string jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new ApplicationException("JwtIssuer is missing");
 string jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new ApplicationException("JwtAudience is missing");
 string redisConn = builder.Configuration["Redis_Connection_String"] ?? throw new ApplicationException("Redis connection string is not available.");
+string angularPort = builder.Configuration["Angular_Port"] ?? throw new ApplicationException("Angular port variable is not available");
 
 
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -63,6 +64,15 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// So that angular can access it as it runs on diff port otherwise browser restricts communication
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular",
+        policy =>
+        {
+            policy.WithOrigins(angularPort).AllowAnyHeader().AllowAnyMethod();
+        });
+});
 
 // Register your application service implementation
 builder.Services.AddScoped<IConnectionProvider, ConnectionProvider>();
@@ -85,6 +95,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseCors("AllowAngular");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
