@@ -6,16 +6,18 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using ILogger = Serilog.ILogger;
 
 namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [AllowAnonymous] // required as httpcontext.user will be empty because of no tokens
-    public class UserController(IConfiguration configuration, IUserService loginService) : ControllerBase
+    public class UserController(IConfiguration configuration, IUserService loginService, ILogger logger) : ControllerBase
     {
         private readonly IConfiguration _configuration = configuration;
         private readonly IUserService _loginService = loginService;
+        private readonly ILogger _logger = logger;
 
         [HttpPost]
         [Route("Login")]
@@ -24,12 +26,14 @@ namespace WebAPI.Controllers
             if (string.IsNullOrEmpty(request.Username))
             {
                 // TODO : validate
+                _logger.Error($"No username found in body");
                 return BadRequest();
             }
 
             if(string.IsNullOrEmpty(request.Password))
             {
                 // TODO : validate
+                _logger.Error($"No password found in body");
                 return BadRequest();
             }
 
@@ -37,15 +41,18 @@ namespace WebAPI.Controllers
             if(userResponse.Role == UserRoles.NotRegistered)
             {
                 // TODO : validate
+                _logger.Error($"Could not authorize the user {request.Username}. User role is not registered.");
                 return Unauthorized("Not Registered");
             }
 
             if(!userResponse.IsValid)
             {
                 //TODO : validate
+                _logger.Error($"Could not authorize user {request.Username} and password {request.Password}");
                 return Unauthorized();
             }
 
+            _logger.Information($"Generating JWT");
             var jwt = CreateJwt(request,userResponse);
 
             return Ok(jwt);
@@ -60,7 +67,9 @@ namespace WebAPI.Controllers
             if(!validation.isValid)
             {
                 // TODO : Validate
+                _logger.Error($"Could not register user");
                 errorMessage = validation.errorMessages.Count > 1 ? "More than one requested paramters are missing" : validation.errorMessages.First();
+                _logger.Error($"{errorMessage}");
                 return BadRequest(errorMessage);
             }
 
@@ -68,9 +77,11 @@ namespace WebAPI.Controllers
             var resp = await _loginService.RegisterUserAsync(request);
             if(resp.IsCreated)
             {
+                _logger.Information($"User registered successfully");
                 return Created();
             }
             errorMessage = resp.ErrorMessage ?? "Something went wrong";
+            _logger.Error($"Could not register user: Error Message: {errorMessage}");
             return BadRequest(errorMessage);
         }
 

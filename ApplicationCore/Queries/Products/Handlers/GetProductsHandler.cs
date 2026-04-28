@@ -4,6 +4,7 @@ using ApplicationCore.Queries.Products.Get;
 using MediatR;
 using System.Linq.Expressions;
 using ApplicationCore.Misc;
+using Serilog;
 
 namespace ApplicationCore.Queries.Products.Handlers
 {
@@ -11,15 +12,17 @@ namespace ApplicationCore.Queries.Products.Handlers
     {
         private IProductsRepository _productsRepo;
         private readonly ICachingService _cahcingService;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GetProductsHandler"/> class.
         /// </summary>
         /// <param name="productsRepo">Repository used to access product data.</param>
-        public GetProductsHandler(IProductsRepository productsRepo, ICachingService cachingService)
+        public GetProductsHandler(IProductsRepository productsRepo, ICachingService cachingService, ILogger logger)
         {
             _productsRepo = productsRepo;
             _cahcingService = cachingService;
+            _logger = logger;
         }
 
 
@@ -53,7 +56,9 @@ namespace ApplicationCore.Queries.Products.Handlers
             }
 
             int page = request.page.HasValue ? request.page.Value : 0;
+            _logger.Information($"Page count is {page}");
             int pageSize = request.pageSize.HasValue ? request.pageSize.Value : products.Count();
+            _logger.Information($"Page size is {pageSize}");
 
             var response = PaginationHandler<Product>.Paginate(products.AsQueryable(), page, pageSize);
             return response;
@@ -85,6 +90,7 @@ namespace ApplicationCore.Queries.Products.Handlers
             var lambda = Expression.Lambda(prop, param);
 
             var methodName = desc ? "OrderByDescending" : "OrderBy";
+            _logger.Information($"Sorting is descending: {desc}");
 
             var result = Expression.Call(
                 typeof(Queryable),

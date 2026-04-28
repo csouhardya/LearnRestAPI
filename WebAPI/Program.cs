@@ -10,6 +10,7 @@ using ApplicationCore.Queries.Products.Handlers;
 using ApplicationCore.Repositories;
 using ApplicationCore.Helpers;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,14 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "Products";
 
 });
+
+builder.Host.UseSerilog((context, services, config) =>
+{
+    config.ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext();
+});
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -67,7 +76,7 @@ builder.Services.AddAuthentication(options =>
 // So that angular can access it as it runs on diff port otherwise browser restricts communication
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngular",
+    options.AddPolicy("AllowAngular", // this name will be registered in UseCors()
         policy =>
         {
             policy.WithOrigins(angularPort).AllowAnyHeader().AllowAnyMethod();
@@ -99,7 +108,7 @@ app.UseCors("AllowAngular");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseSerilogRequestLogging();
 app.MapControllers();
 
 app.Run();

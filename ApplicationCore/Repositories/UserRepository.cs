@@ -1,15 +1,18 @@
 ﻿using ApplicationCore.Helpers;
 using ApplicationCore.Interfaces;
+using ApplicationCore.Misc;
 using ApplicationCore.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using Serilog;
 using System.Data;
 
 namespace ApplicationCore.Repositories
 {
-    public class UserRepository(IConnectionProvider connectionProvider) : IUserRepository
+    public class UserRepository(IConnectionProvider connectionProvider, ILogger logger) : IUserRepository
     {
         private readonly IConnectionProvider _connectionProvider = connectionProvider;
+        private readonly ILogger _logger = logger;
         public async Task<User> GetUserAsync(LoginRequest request)
         {
             User user = new();
@@ -63,11 +66,13 @@ namespace ApplicationCore.Repositories
             catch(SqlException ex)
             {
                 resp.IsCreated = false;
-                if(ex.Number == DbExceptions.EmailAlreadyExists)
+                if(ex.Number == Constants.EmailAlreadyExists)
                     resp.ErrorMessage = "Email already exists. Please try a different email address.";
 
-                if (ex.Number == DbExceptions.UsernameAlreadyExists)
+                if (ex.Number == Constants.UsernameAlreadyExists)
                     resp.ErrorMessage = "Username already exists. Please try a different username.";
+
+                _logger.Error($"{resp.ErrorMessage}");
 
                 return resp;
             }

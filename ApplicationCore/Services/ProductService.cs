@@ -5,20 +5,23 @@ using ApplicationCore.Queries.Products.Get;
 using ApplicationCore.Queries.Products.Create;
 using ApplicationCore.Queries.Products.Update;
 using ApplicationCore.Queries.Products.Delete;
+using Serilog;
 
 namespace ApplicationCore.Services
 {
     public class ProductService : IProductService
     {
         private ISender _sender;
+        private ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductService"/> class.
         /// </summary>
         /// <param name="sender">MediatR sender used to dispatch queries.</param>
-        public ProductService(ISender sender)
+        public ProductService(ISender sender, ILogger logger)
         {
             _sender = sender;
+            _logger = logger;
         }
 
         /// <summary>
@@ -28,6 +31,7 @@ namespace ApplicationCore.Services
         public async Task<List<Product>> GetProductsAsync()
         {
             var query = new GetProductsQuery();
+            _logger.Information($"Sending query to GET products handler");
             var products = await _sender.Send(query);
             return products;
         }
@@ -44,6 +48,7 @@ namespace ApplicationCore.Services
         public async Task<PageList<Product>> GetProductsAsync(string? searchTerm, string? sortBy, string? sortOrder, int? page, int? pageSize)
         {
             var query = new GetProductsQueryBySearchTerm(searchTerm, sortBy, sortOrder, page, pageSize);
+            _logger.Information($"Sending query to GET products handler");
             var products = await _sender.Send(query);
             return products;
         }
@@ -51,6 +56,7 @@ namespace ApplicationCore.Services
         public async Task<Product> GetProductByIdAsync(Guid guid)
         {
             var query = new GetProductQuery(guid);
+            _logger.Information($"Sending query to GET products handler");
             var product = await _sender.Send(query);
             return product;
         }
@@ -58,6 +64,7 @@ namespace ApplicationCore.Services
         public async Task<bool> AddProductAsync(Product product)
         {
             var query = new AddProductsQuery(product);
+            _logger.Information($"Sending query to ADD products handler");
             var isAdded = await _sender.Send(query);
             return isAdded;
         }
@@ -65,6 +72,7 @@ namespace ApplicationCore.Services
         public async Task<bool> UpdateProductAsync(Product product)
         {
             var query = new UpdateQueryAsync(product);
+            _logger.Information($"Sending query to UPDATE products handler");
             var isUpdated = await _sender.Send(query);
             return isUpdated;
         }
@@ -72,6 +80,7 @@ namespace ApplicationCore.Services
         public async Task<bool> DeleteProductAsync(Guid guid)
         {
             var query = new DeleteProductsQuery(guid);
+            _logger.Information($"Sending query to DELETE products handler");
             var isDeleted = await _sender.Send(query);
             return isDeleted;
         }

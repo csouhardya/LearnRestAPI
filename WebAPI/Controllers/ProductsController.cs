@@ -1,6 +1,7 @@
 ﻿using ApplicationCore.Interfaces;
 using ApplicationCore.Models;
 using Microsoft.AspNetCore.Mvc;
+using ILogger = Serilog.ILogger;
 
 namespace WebAPI.Controllers
 {
@@ -8,14 +9,16 @@ namespace WebAPI.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
+        private ILogger _logger;
         private IProductService _productsService;
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductsController"/> class.
         /// </summary>
         /// <param name="productService">Service used to query products.</param>
-        public ProductsController(IProductService productService)
+        public ProductsController(IProductService productService, ILogger logger)
         {
             _productsService = productService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -25,7 +28,9 @@ namespace WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProducts()
         {
+            _logger.Information("Fetching all products");
             var products = await _productsService.GetProductsAsync();
+            _logger.Information("All products fetched successfully");
             return Ok(products);
         }
 
@@ -43,7 +48,10 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> GetProductsWithSearchTerm(string? searchTerm, string? sortBy, string? sortOrder, int? page, int? pageSize)
         {
             //TODO validate if page != null then pageSize is required and minimum number should be 1
+            _logger.Information("Getting product with search term.");
             var products = await _productsService.GetProductsAsync(searchTerm, sortBy, sortOrder, page, pageSize);
+
+            _logger.Information("returned products successfully");
             return Ok(products);
         }
 
@@ -57,7 +65,9 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> GetProductById(Guid guid)
         {
             // TODO :  validate
+            _logger.Information($"Fetching product with guid: {guid}");
             var products = await _productsService.GetProductByIdAsync(guid);
+            _logger.Information($"{guid} product fetched successfully");
             return Ok(products);
         }
 
@@ -66,9 +76,13 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> AddProduct(Product product)
         {
             // TODO : validate
+            _logger.Information($"Adding new product {product.Name}");
             var isAdded = await _productsService.AddProductAsync(product);
             if (isAdded)
+            {
+                _logger.Information($"New product added successfully");
                 return Created();
+            }
             return BadRequest();
         }
 
@@ -77,9 +91,13 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> UpdateProduct(Product product)
         {
             // TODO :  validate
+            _logger.Information($"Updating product {product.Guid}");
             var isUpdated = await _productsService.UpdateProductAsync(product);
             if (isUpdated)
+            {
+                _logger.Information($"Successfully updated product {product.Guid}");
                 return Ok();
+            }
             return BadRequest();
         }
 
@@ -88,9 +106,13 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> DeleteProduct(Guid guid)
         {
             //TODO : validate
+            _logger.Information($"Deleting product {guid}");
             var isDeleted = await _productsService.DeleteProductAsync(guid);
             if (isDeleted)
+            {
+                _logger.Information($"Successfully deleted product {guid}");
                 return NoContent();
+            }
             return BadRequest();
         }
     }
