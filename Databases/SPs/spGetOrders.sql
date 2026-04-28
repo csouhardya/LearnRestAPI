@@ -1,0 +1,5 @@
+CREATE OR ALTER PROCEDURE spGetOrders
+AS
+BEGIN
+	SELECT * FROM dbo.Orders
+END

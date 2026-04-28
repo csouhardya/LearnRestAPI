@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
 
             
             var resp = await _loginService.RegisterUserAsync(request);
-            if(resp.IsCreated)
+            if(resp.IsValid)
             {
                 _logger.Information($"User registered successfully");
                 return Created();

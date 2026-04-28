@@ -19,7 +19,7 @@ namespace ApplicationCore.Services
             return result;
         }
 
-        public async Task<RegisterResponse> RegisterUserAsync(User user)
+        public async Task<ResponseValidity> RegisterUserAsync(User user)
         {
             var query = new CreateUserQuery(user);
             _logger.Information($"Sending register request to handler.Username: {user.Credentials.Username}");

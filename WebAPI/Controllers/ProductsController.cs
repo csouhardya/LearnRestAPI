@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
         /// <param name="pageSize">Optional page size.</param>
         /// <returns>HTTP 200 with a paged list of products.</returns>
         [HttpGet]
-        [Route("SearchTerm")]
+        [Route("BySearch")]
         public async Task<IActionResult> GetProductsWithSearchTerm(string? searchTerm, string? sortBy, string? sortOrder, int? page, int? pageSize)
         {
             //TODO validate if page != null then pageSize is required and minimum number should be 1

@@ -5,6 +5,6 @@ namespace ApplicationCore.Interfaces
     public interface IUserRepository
     {
         Task<User> GetUserAsync(LoginRequest request);
-        Task<RegisterResponse> CreateUserAsync(User user);
+        Task<ResponseValidity> CreateUserAsync(User user);
     }
 }

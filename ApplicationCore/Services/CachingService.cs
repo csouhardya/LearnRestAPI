@@ -1,39 +1,39 @@
 ﻿using ApplicationCore.Interfaces;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using System.Text.Json;
 
 namespace ApplicationCore.Services
 {
-    public class CachingService(IDistributedCache cache, ILogger<ICachingService> logger) : ICachingService
+    public class CachingService(IDistributedCache cache, ILogger logger) : ICachingService
     {
         private readonly IDistributedCache _cache = cache;
-        private readonly ILogger<ICachingService> _logger;
+        private readonly ILogger _logger = logger;
 
         public void SetData<T>(string key, T data)
         {
-            _logger.LogInformation($"Setting Cache");
+            _logger.Information($"Setting Cache");
             var options = new DistributedCacheEntryOptions()
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
             };
 
             _cache.SetString(key, JsonSerializer.Serialize(data), options);
-            _logger.LogInformation($"Cache data set successfully");
+            _logger.Information($"Cache data set successfully");
         }
 
         public T? GetData<T>(string key)
         {
-            _logger.LogInformation($"Getting data from cache");
+            _logger.Information($"Getting data from cache");
             var data = _cache.GetString(key);
 
             if (data is null)
             {
-                _logger.LogWarning($"Not cache found with key {key}");
+                _logger.Warning($"Not cache found with key {key}");
                 return default(T);
             }
 
-            _logger.LogInformation($"Data fetched successfully");
+            _logger.Information($"Data fetched successfully");
             var jsonData = JsonSerializer.Deserialize<T>(data);
             return jsonData;
         }
@@ -46,7 +46,7 @@ namespace ApplicationCore.Services
 
         public void RemoveData<T>(string key)
         {
-            _logger.LogInformation($"Removing data from cache");
+            _logger.Information($"Removing data from cache");
             _cache.Remove(key);
         }
     }

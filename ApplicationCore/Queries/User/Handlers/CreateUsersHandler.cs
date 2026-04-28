@@ -9,20 +9,20 @@ namespace ApplicationCore.Queries.User.Handlers
 {
     public class CreateUsersHandler(IUserRepository userRepository,
                         IPasswordHelper passwordHelper,
-                        ILogger logger): IRequestHandler<CreateUserQuery, RegisterResponse>
+                        ILogger logger): IRequestHandler<CreateUserQuery, ResponseValidity>
     {
         private IUserRepository _userRepository = userRepository;
         private IPasswordHelper _passwordHelper = passwordHelper;
         private ILogger _logger = logger;
 
-        public async Task<RegisterResponse> Handle(CreateUserQuery query , CancellationToken cancellationToken)
+        public async Task<ResponseValidity> Handle(CreateUserQuery query , CancellationToken cancellationToken)
         {
             _logger.Information($"Sending register request to repository");
             var user = query.user;
             Guid guid = Guid.NewGuid();
             var role = UserRoles.User;
             EmailAddressAttribute emailAttr = new();
-            RegisterResponse resp = new();
+            ResponseValidity resp = new();
 
             user.guid = guid;
             user.Role = role;
@@ -31,7 +31,7 @@ namespace ApplicationCore.Queries.User.Handlers
             if (!emailAttr.IsValid(user.Email))
             {
                 _logger.Error($"Email address {user.Email} is not valid");
-                resp.IsCreated = false;
+                resp.IsValid = false;
                 resp.ErrorMessage = "Email address is not in correct format"; // TODO : validation result
                 return resp;
             }
@@ -39,7 +39,7 @@ namespace ApplicationCore.Queries.User.Handlers
             if(user.Credentials.Username.Length < 3 && user.Credentials.Username.Length > 30)
             {
                 _logger.Error($"Username not in correct length. Length: {user.Credentials.Username.Length}");
-                resp.IsCreated = false;
+                resp.IsValid = false;
                 resp.ErrorMessage = "Username length must be in between 3 and 30"; // TODO : validation result
                 return resp;
             }

@@ -38,9 +38,9 @@ namespace ApplicationCore.Repositories
             return result;
         }
 
-        public async Task<RegisterResponse> CreateUserAsync(User user)
+        public async Task<ResponseValidity> CreateUserAsync(User user)
         {
-            RegisterResponse resp = new();
+            ResponseValidity resp = new();
             await using var conn = await _connectionProvider.ConnectAsync();
             try
             {
@@ -58,14 +58,14 @@ namespace ApplicationCore.Repositories
 
                 if(result == 1)
                 {
-                    resp.IsCreated = true;
+                    resp.IsValid = true;
                     resp.ErrorMessage = string.Empty;
                 }
                 return resp;
             }
             catch(SqlException ex)
             {
-                resp.IsCreated = false;
+                resp.IsValid = false;
                 if(ex.Number == Constants.EmailAlreadyExists)
                     resp.ErrorMessage = "Email already exists. Please try a different email address.";
 
