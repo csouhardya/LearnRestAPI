@@ -21,8 +21,20 @@ namespace ApplicationCore.Misc
         #endregion
 
         #region KafkaConstants
-        public const string KafkaSever = "localhost:9092"; // TODO get it from configuration, env vars
+        public const string KafkaSeverKey = "Kafka:BootstrapServers";
         public const string ProduceOrderTopic = "Order";
+        public const string ProductOrderMessageKey = "OrderCreated";
+        public const string InventoryConsumerGroupId = "InventoryService";
+        public const string EmailConsumerGroupId = "EmailService";
+        #endregion
+
+        #region EmailKeys
+        public const string EmailAddressKey = "Email:Address";
+        public const string EmailPasswordKey = "Email:Password";
+        #endregion
+
+        #region DefaultPropertyValues
+        public const string DefaultCurrency = "INR";
         #endregion
     }
 }

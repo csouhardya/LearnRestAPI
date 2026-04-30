@@ -1,0 +1,6 @@
+CREATE OR ALTER PROCEDURE spGetInventories
+AS
+BEGIN
+	SELECT * FROM dbo.Inventory
+END
+GO

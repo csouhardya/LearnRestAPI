@@ -6,10 +6,11 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersController(ILogger logger, IOrderService orderService) : ControllerBase
+    public class OrdersController(ILogger logger, IOrderService orderService, IKafkaService kafkaService) : ControllerBase
     {
         private readonly ILogger _logger = logger;
         private readonly IOrderService _orderService = orderService;
+        private readonly IKafkaService _kafkaService = kafkaService;
 
         [HttpGet]
         [Route("")]
@@ -27,7 +28,7 @@ namespace WebAPI.Controllers
 
         [HttpGet]
         [Route("BySearch")]
-        public async Task<IActionResult> GetProductsBySearchAsync([FromQuery] OrderSearchTerm searchTerm)
+        public async Task<IActionResult> GetOrdersBySearchAsync([FromQuery] OrderSearchTerm searchTerm)
         {
             _logger.Information("Fetching orders as per search");
             var result = await _orderService.GetOrderBySearchTermAsync(searchTerm);
@@ -41,7 +42,7 @@ namespace WebAPI.Controllers
 
         [HttpPut]
         [Route("")]
-        public async Task<IActionResult> UpdateProductsAsync([FromBody] List<Order> orders)
+        public async Task<IActionResult> UpdaOrdersAsync([FromBody] List<Order> orders)
         {
             if(orders == null || orders.Count < 1)
             {
@@ -63,7 +64,7 @@ namespace WebAPI.Controllers
 
         [HttpPost]
         [Route("")]
-        public async Task<IActionResult> CreateProductsAsync([FromBody] List<Order> orders)
+        public async Task<IActionResult> CreateOrdersAsync([FromBody] List<Order> orders)
         {
             if(orders == null || orders.Count < 1)
             {
@@ -76,6 +77,7 @@ namespace WebAPI.Controllers
             if(result.IsValid)
             {
                 _logger.Information($"Created {orders.Count} new orders. ");
+                await _kafkaService.ProduceOrderAsync(orders);
                 return Created();
             }
             _logger.Error("Something went wrong, creating orders");
